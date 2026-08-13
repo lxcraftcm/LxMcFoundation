@@ -7,7 +7,7 @@
     <!-- 公共库父工程统一管理坐标、版本和子模块。 -->
     <groupId>io.github.lxcraftcm</groupId>
     <artifactId>lxmc-foundation</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <packaging>pom</packaging>
 
     <!-- Maven 构建日志使用稳定的项目名称和职责简介。 -->

@@ -8,7 +8,7 @@
     <parent>
         <groupId>io.github.lxcraftcm</groupId>
         <artifactId>lxmc-foundation</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.1.0</version>
     </parent>
 
     <!-- 核心模块不依赖 Bukkit 运行时对象。 -->
