@@ -55,6 +55,7 @@ jobs:
           export CENTRAL_MANUAL_TESTING_TOKEN
 
           CENTRAL_TEST_M2="${RUNNER_TEMP}/lxmc-central-consumer-m2"
+          CENTRAL_TEST_OUTPUT="${RUNNER_TEMP}/lxmc-central-consumer-libs"
 
           mvn \
             --batch-mode \
@@ -63,8 +64,9 @@ jobs:
             --file .github/central-consumer/pom.xml \
             -Dmaven.repo.local="${CENTRAL_TEST_M2}" \
             -Dfoundation.version="${RELEASE_VERSION}" \
-            org.apache.maven.plugins:maven-dependency-plugin:3.9.0:tree
+            -DincludeGroupIds=io.github.lxcraftcm \
+            -DoutputDirectory="${CENTRAL_TEST_OUTPUT}" \
+            org.apache.maven.plugins:maven-dependency-plugin:3.9.0:copy-dependencies
 
-          test -f "${CENTRAL_TEST_M2}/io/github/lxcraftcm/lxmc-foundation/${RELEASE_VERSION}/lxmc-foundation-${RELEASE_VERSION}.pom"
-          test -f "${CENTRAL_TEST_M2}/io/github/lxcraftcm/foundation-core/${RELEASE_VERSION}/foundation-core-${RELEASE_VERSION}.jar"
-          test -f "${CENTRAL_TEST_M2}/io/github/lxcraftcm/foundation-bukkit/${RELEASE_VERSION}/foundation-bukkit-${RELEASE_VERSION}.jar"
+          test -f "${CENTRAL_TEST_OUTPUT}/foundation-core-${RELEASE_VERSION}.jar"
+          test -f "${CENTRAL_TEST_OUTPUT}/foundation-bukkit-${RELEASE_VERSION}.jar"
