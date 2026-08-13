@@ -177,6 +177,8 @@
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>${maven.gpg.plugin.version}</version>
                         <configuration>
+                            <!-- 固定使用 Maven Central 专用签名密钥，避免本机多密钥时误签。 -->
+                            <keyname>2846E20AB3EFA7598AB916441394478DA046DAEA</keyname>
                             <!-- 强制使用环境变量等安全方式传递私钥密码。 -->
                             <bestPractices>true</bestPractices>
                         </configuration>
