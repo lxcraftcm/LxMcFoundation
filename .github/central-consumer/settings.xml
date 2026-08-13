@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <servers>
+        <!-- Central Token 由工作流转换为 Bearer 请求头，文件内不保存实际凭据。 -->
+        <server>
+            <id>central.manual.testing</id>
+            <configuration>
+                <httpHeaders>
+                    <property>
+                        <name>Authorization</name>
+                        <value>Bearer ${env.CENTRAL_MANUAL_TESTING_TOKEN}</value>
+                    </property>
+                </httpHeaders>
+            </configuration>
+        </server>
+    </servers>
+
+    <profiles>
+        <!-- 验证仓库只提供当前账号中已经通过校验但尚未公开的正式构件。 -->
+        <profile>
+            <id>central.manual.testing</id>
+            <repositories>
+                <repository>
+                    <id>central.manual.testing</id>
+                    <name>Maven Central validated deployments</name>
+                    <url>https://central.sonatype.com/api/v1/publisher/deployments/download</url>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+
+    <!-- 验证工程始终启用 Central 手动测试仓库，不影响业务项目的 Maven 配置。 -->
+    <activeProfiles>
+        <activeProfile>central.manual.testing</activeProfile>
+    </activeProfiles>
+</settings>

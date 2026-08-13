@@ -35,8 +35,10 @@
    `mvn -Prelease clean verify`。
 3. 正式版本提交完成后创建同版本标签，例如 `v0.1.0`。
 4. 标签触发 GitHub Actions 构建、签名并上传 Central Portal。
-5. 首批版本必须在 Central Portal 检查验证结果并人工点击 `Publish`。
-6. 已发布版本不可覆盖；任何修复必须递增版本号。
+5. 部署进入 `VALIDATED` 后，手动运行验证工作流并使用全新 Maven 缓存从
+   Central 验证仓库拉取正式坐标。
+6. 远程消费验证通过后，在 Central Portal 人工点击 `Publish`。
+7. 已发布版本不可覆盖；任何修复必须递增版本号。
 
 ## 5. 发布后验证
 

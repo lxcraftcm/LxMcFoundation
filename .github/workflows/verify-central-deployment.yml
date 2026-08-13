@@ -1,0 +1,70 @@
+name: Verify validated Maven Central deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        # 手动输入已经上传并处于 VALIDATED 状态的 Foundation 版本。
+        description: Foundation version to resolve from the validated deployment repository
+        required: true
+        default: "0.1.0"
+        type: string
+
+jobs:
+  verify:
+    name: Resolve artifacts from Central
+    runs-on: ubuntu-latest
+    environment: maven-central
+
+    permissions:
+      # 验证任务只需读取仓库中的独立消费工程和 Maven 设置模板。
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure Java 8
+        uses: actions/setup-java@v5
+        with:
+          # 消费验证沿用 Foundation 对外承诺的 Java 8 运行基线。
+          distribution: temurin
+          java-version: "8"
+          cache: maven
+
+      - name: Validate requested version
+        shell: bash
+        env:
+          # 输入先进入环境变量，再由脚本校验格式，避免拼接任意 Maven 参数。
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          if [[ ! "${RELEASE_VERSION}" =~ ^[0-9A-Za-z][0-9A-Za-z._-]*$ ]]; then
+            echo "Invalid Maven version: ${RELEASE_VERSION}"
+            exit 1
+          fi
+
+      - name: Resolve validated Foundation artifacts
+        shell: bash
+        env:
+          # Central User Token 仅在当前 GitHub 托管任务中用于访问验证仓库。
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          CENTRAL_MANUAL_TESTING_TOKEN="$(printf '%s:%s' "${CENTRAL_USERNAME}" "${CENTRAL_PASSWORD}" | base64 | tr -d '\n')"
+          export CENTRAL_MANUAL_TESTING_TOKEN
+
+          CENTRAL_TEST_M2="${RUNNER_TEMP}/lxmc-central-consumer-m2"
+
+          mvn \
+            --batch-mode \
+            --no-transfer-progress \
+            --settings .github/central-consumer/settings.xml \
+            --file .github/central-consumer/pom.xml \
+            -Dmaven.repo.local="${CENTRAL_TEST_M2}" \
+            -Dfoundation.version="${RELEASE_VERSION}" \
+            org.apache.maven.plugins:maven-dependency-plugin:3.9.0:tree
+
+          test -f "${CENTRAL_TEST_M2}/io/github/lxcraftcm/lxmc-foundation/${RELEASE_VERSION}/lxmc-foundation-${RELEASE_VERSION}.pom"
+          test -f "${CENTRAL_TEST_M2}/io/github/lxcraftcm/foundation-core/${RELEASE_VERSION}/foundation-core-${RELEASE_VERSION}.jar"
+          test -f "${CENTRAL_TEST_M2}/io/github/lxcraftcm/foundation-bukkit/${RELEASE_VERSION}/foundation-bukkit-${RELEASE_VERSION}.jar"
