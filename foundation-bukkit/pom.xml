@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 继承公共库的 Java、依赖与构建版本约束。 -->
+    <parent>
+        <groupId>io.github.lxcraftcm</groupId>
+        <artifactId>lxmc-foundation</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <!-- Bukkit 模块只负责平台适配，不注册具体插件业务。 -->
+    <artifactId>foundation-bukkit</artifactId>
+    <name>LxMcFoundation Bukkit</name>
+
+    <dependencies>
+        <!-- Bukkit 适配层复用平台无关的配置和国际化协议。 -->
+        <dependency>
+            <groupId>io.github.lxcraftcm</groupId>
+            <artifactId>foundation-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Spigot API 运行时由 Minecraft 服务端提供，不进入公共库 JAR。 -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JUnit 只用于 Bukkit 适配层的单元测试。 -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- 按父工程的 Java 8 目标编译 Bukkit 适配代码。 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <!-- 执行 Bukkit 适配层的 JUnit 测试。 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

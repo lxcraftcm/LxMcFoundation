@@ -1,0 +1,73 @@
+name: Publish LxMcFoundation to Maven Central
+
+on:
+  push:
+    # 正式版本标签是唯一发布入口，普通分支构建不会上传公共组件。
+    tags:
+      - "v*"
+
+jobs:
+  publish:
+    name: Build, sign and upload
+    runs-on: ubuntu-latest
+    environment: maven-central
+
+    permissions:
+      # 发布只需读取当前标签对应的源代码。
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          # 保留标签历史，便于校验和生成可追溯发布产物。
+          fetch-depth: 0
+
+      - name: Configure Java, Maven Central and GPG
+        uses: actions/setup-java@v5
+        with:
+          # 公共 API 必须继续使用 Java 8 编译和验证。
+          distribution: temurin
+          java-version: "8"
+          cache: maven
+          # 自动生成 Maven settings.xml 中的 Central Portal 凭据。
+          server-id: central
+          server-username-env-var: CENTRAL_USERNAME
+          server-password-env-var: CENTRAL_PASSWORD
+          # 私钥只导入当前工作流的临时 GPG 密钥环。
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase-env-var: MAVEN_GPG_PASSPHRASE
+
+      - name: Verify tag and project version
+        shell: bash
+        run: |
+          RELEASE_VERSION="${GITHUB_REF_NAME#v}"
+          POM_VERSION="$(mvn help:evaluate \
+            -Dexpression=project.version \
+            -q \
+            -DforceStdout)"
+
+          if [[ "${POM_VERSION}" == *"-SNAPSHOT" ]]; then
+            echo "A Maven Central release cannot use a SNAPSHOT version."
+            exit 1
+          fi
+
+          if [[ "${POM_VERSION}" != "${RELEASE_VERSION}" ]]; then
+            echo "Tag ${RELEASE_VERSION} does not match POM ${POM_VERSION}."
+            exit 1
+          fi
+
+      - name: Build, sign and upload to Central Portal
+        run: >
+          mvn
+          --batch-mode
+          --no-transfer-progress
+          -Prelease
+          clean
+          deploy
+        env:
+          # Token 用户名和密码由 Central Portal 生成，不是 GitHub 登录信息。
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          # Maven GPG Plugin 从环境变量读取密码，避免写入 POM 或日志。
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 公共库父工程统一管理坐标、版本和子模块。 -->
+    <groupId>io.github.lxcraftcm</groupId>
+    <artifactId>lxmc-foundation</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <!-- Maven 构建日志使用稳定的项目名称和职责简介。 -->
+    <name>LxMcFoundation</name>
+    <description>Shared Java and Bukkit infrastructure for lxcraftcm plugins.</description>
+    <url>https://github.com/lxcraftcm/LxMcFoundation</url>
+
+    <licenses>
+        <!-- MIT 允许业务插件自由使用、修改、分发和商用公共基础库。 -->
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/license/mit</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <!-- Central 使用开发者信息标识公共组件的维护者和联系方式。 -->
+        <developer>
+            <id>lxcraftcm</id>
+            <name>lxcraftcm</name>
+            <email>lxcraftcm@163.com</email>
+            <url>https://github.com/lxcraftcm</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <!-- SCM 元数据将 Maven 组件关联到可追溯的 GitHub 源代码。 -->
+        <connection>scm:git:https://github.com/lxcraftcm/LxMcFoundation.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/lxcraftcm/LxMcFoundation.git</developerConnection>
+        <url>https://github.com/lxcraftcm/LxMcFoundation</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <modules>
+        <!-- 平台无关的缓存、持久化、配置与国际化协议。 -->
+        <module>foundation-core</module>
+
+        <!-- 将公共协议适配到 Bukkit 配置、语言和消息 API。 -->
+        <module>foundation-bukkit</module>
+    </modules>
+
+    <properties>
+        <!-- 全部模块的源码、资源和测试统一使用 UTF-8。 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- 公共 API 使用 Java 8 语法和字节码，与现有插件保持兼容。 -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <!-- JSON 适配器使用与现有 OurCity3 兼容的 Gson API。 -->
+        <gson.version>2.8.0</gson.version>
+
+        <!-- Bukkit 适配层以 Spigot 1.16.5 作为最低编译 API。 -->
+        <spigot.version>1.16.5-R0.1-SNAPSHOT</spigot.version>
+
+        <!-- 全部单元测试使用兼容 Java 8 的 JUnit 4。 -->
+        <junit.version>4.13.2</junit.version>
+
+        <!-- 正式发布所需插件统一锁定版本，避免 CI 环境发生隐式变化。 -->
+        <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
+        <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
+        <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
+        <central.publishing.plugin.version>0.11.0</central.publishing.plugin.version>
+    </properties>
+
+    <repositories>
+        <!-- Spigot API 及其快照元数据从 Spigot 官方仓库获取。 -->
+        <repository>
+            <id>spigotmc-repository</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Gson 版本由父工程锁定，子模块不重复声明版本。 -->
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson.version}</version>
+            </dependency>
+
+            <!-- Spigot API 版本在全部 Bukkit 适配代码中保持一致。 -->
+            <dependency>
+                <groupId>org.spigotmc</groupId>
+                <artifactId>spigot-api</artifactId>
+                <version>${spigot.version}</version>
+            </dependency>
+
+            <!-- JUnit 版本在所有模块的测试中保持一致。 -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- 子模块统一使用固定编译器插件版本。 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                </plugin>
+
+                <!-- 子模块统一使用固定 Surefire 版本执行 JUnit 测试。 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <!-- release 只在正式发布时生成附属包、签名并上传 Central Portal。 -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- Central 要求每个非 POM 组件提供源码归档。 -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven.source.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- Central 要求每个非 POM 组件提供公开 API 文档归档。 -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven.javadoc.plugin.version}</version>
+                        <configuration>
+                            <!-- 中文注释统一使用 UTF-8 生成 Javadoc。 -->
+                            <encoding>UTF-8</encoding>
+                            <docencoding>UTF-8</docencoding>
+                            <charset>UTF-8</charset>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- 使用发布者私钥对 POM、JAR、源码包和 Javadoc 包签名。 -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven.gpg.plugin.version}</version>
+                        <configuration>
+                            <!-- 强制使用环境变量等安全方式传递私钥密码。 -->
+                            <bestPractices>true</bestPractices>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- 新版 Central Portal 插件接管多模块 deploy 上传。 -->
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central.publishing.plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <!-- 与 CI 自动生成的 Maven server id 保持一致。 -->
+                            <publishingServerId>central</publishingServerId>
+                            <!-- 首次发布先由 Portal 人工复核后再正式公开。 -->
+                            <autoPublish>false</autoPublish>
+                            <!-- CI 等待服务端完成全部发布规则验证。 -->
+                            <waitUntil>validated</waitUntil>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

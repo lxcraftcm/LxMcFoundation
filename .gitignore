@@ -1,0 +1,10 @@
+# Maven 构建产物可以通过源码重新生成，不进入版本库。
+target/
+**/target/
+
+# IntelliJ IDEA 工作区与本机用户状态不属于项目源码。
+.idea/
+*.iml
+
+# macOS Finder 元数据不属于项目内容。
+.DS_Store

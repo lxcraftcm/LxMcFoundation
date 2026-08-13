@@ -1,0 +1,3 @@
+test:
+  # 测试内置英语的单行消息与占位符契约。
+  hello: "{prefix}&fHello {name}"
