@@ -30,7 +30,6 @@ jobs:
           # 消费验证沿用 Foundation 对外承诺的 Java 8 运行基线。
           distribution: temurin
           java-version: "8"
-          cache: maven
 
       - name: Validate requested version
         shell: bash
