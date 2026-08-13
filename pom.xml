@@ -61,8 +61,8 @@
         <!-- JSON 适配器使用与现有 OurCity3 兼容的 Gson API。 -->
         <gson.version>2.8.0</gson.version>
 
-        <!-- Bukkit 适配层以 Spigot 1.16.5 作为最低编译 API。 -->
-        <spigot.version>1.16.5-R0.1-SNAPSHOT</spigot.version>
+        <!-- Bukkit 适配层固定到 Spigot 1.16.5 官方时间戳构件，避免正式版本依赖浮动 SNAPSHOT。 -->
+        <spigot.version>1.16.5-R0.1-20210611.041013-99</spigot.version>
 
         <!-- 全部单元测试使用兼容 Java 8 的 JUnit 4。 -->
         <junit.version>4.13.2</junit.version>
@@ -75,7 +75,7 @@
     </properties>
 
     <repositories>
-        <!-- Spigot API 及其快照元数据从 Spigot 官方仓库获取。 -->
+        <!-- Spigot API 的固定时间戳构件从 Spigot 官方公共仓库获取。 -->
         <repository>
             <id>spigotmc-repository</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>

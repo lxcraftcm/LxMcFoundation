@@ -17,7 +17,9 @@
 2. `foundation-core` 和 `foundation-bukkit` 各自发布主 JAR、源码 JAR、
    Javadoc JAR、POM 及其 GPG 签名。
 3. Bukkit API 使用 `provided` 范围，不进入 Foundation 或业务插件产物。
-4. 业务插件通过 Shade 内置 Foundation，服务端不单独安装公共库。
+4. Spigot 官方仅提供浮动 SNAPSHOT 时，必须锁定到官方仓库的具体时间戳构件，
+   正式 POM 不得声明 `-SNAPSHOT` 依赖。
+5. 业务插件通过 Shade 内置 Foundation，服务端不单独安装公共库。
 
 ## 3. 凭据边界
 
